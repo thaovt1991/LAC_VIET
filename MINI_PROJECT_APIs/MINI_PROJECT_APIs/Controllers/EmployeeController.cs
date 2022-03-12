@@ -85,6 +85,7 @@ namespace MINI_PROJECT_APIs.Controllers
                 employee.AvatarPath = employeeRequest.AvatarPath;
                 employee.Position = employeeRequest.Position;
                 employee.Title = employeeRequest.Title;
+                employee.AvatarPath = employeeRequest.AvatarPath;
                 employee.Deleted = false;
                 employee.Department = department;
             }
@@ -123,6 +124,7 @@ namespace MINI_PROJECT_APIs.Controllers
                 employee.AvatarPath = employeeRequest.AvatarPath;
                 employee.Position = employeeRequest.Position;
                 employee.Title = employeeRequest.Title;
+                employee.AvatarPath = employeeRequest.AvatarPath;
                 employee.Deleted = false;
                 employee.Department = department;
             }
