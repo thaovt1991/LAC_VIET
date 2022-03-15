@@ -12,6 +12,7 @@ namespace MINI_PROJECT_APIs.Service
         Task<List<Employee>> GetEmployees();
 
         Task<List<Employee>> GetEmployeesByDerpartmentId(int id);
+
         Task<Employee> Create(Employee employee);
         Task<Employee> GetEmployeeById(int id);
         Task<Employee> Modify(Employee employee);

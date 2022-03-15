@@ -34,6 +34,9 @@ namespace MINI_PROJECT_APIs.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<int>("ParentId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("Departments");

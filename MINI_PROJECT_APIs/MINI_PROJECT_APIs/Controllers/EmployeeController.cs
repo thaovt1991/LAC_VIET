@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MINI_PROJECT_APIs.Data;
 using MINI_PROJECT_APIs.Domain.Request;
+using MINI_PROJECT_APIs.Domain.Responses.Department;
 using MINI_PROJECT_APIs.Domain.Responses.Employee;
 using MINI_PROJECT_APIs.Models;
 using MINI_PROJECT_APIs.Service;
@@ -31,7 +32,7 @@ namespace MINI_PROJECT_APIs.Controllers
         // GET: api/<EmployeeController>
         [HttpGet]
 
-        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees()
+        public async Task<ActionResult<IEnumerable<Employee>>> GetAllEmployees()
         {
             //List<Employee> employees = await employeeService.GetEmployees();
             //List<EmployeeView> employeeViews = new List<EmployeeView>();
@@ -49,7 +50,53 @@ namespace MINI_PROJECT_APIs.Controllers
         [Route("/api/EmployeeByDepartmentId/{id}")]
         public async Task<ActionResult<IEnumerable<Employee>>> GetEmployeesByDepartmnetId(int id)
         {
+            //List<Employee> employees = await employeeService.GetEmployeesByDerpartmentId(id);
+            //List<EmployeeView> employeeViews = new List<EmployeeView>();
+            //foreach (Employee e in employees)
+            //{
+            //    EmployeeView ev = toEmployeeView(e);
+            //    employeeViews.Add(ev);
+            //}
+
+            //return employeeViews;
             return await employeeService.GetEmployeesByDerpartmentId(id);
+        }
+
+        [HttpGet]
+        [Route("/api/EmployeeOfTreeByDepartmentId/{id}")]
+        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployeesOfTreeByDepartmnetId(int id)
+        {
+            
+
+            List<DepartmentRes> departmentRes = await departmentService.GetDepartmentsTree(id);
+            List<Employee> employees = new List<Employee>();
+            List<Employee> employeesOfDep = new List<Employee>();
+            List<int> listid = new List<int>();
+            listid.Add(id);
+
+            
+            List<int> listIdDepartmnet = this.departmentService.getAllIdDepartmnet(departmentRes, listid);
+
+            foreach(int idDe in listIdDepartmnet)
+            {
+                employeesOfDep = await employeeService.GetEmployeesByDerpartmentId(idDe);
+                if (employeesOfDep !=null)
+                {
+                    employees.AddRange(employeesOfDep);
+                }
+            }
+
+
+
+            //List<EmployeeView> employeeViews = new List<EmployeeView>();
+            //foreach (Employee e in employees)
+            //{
+            //    EmployeeView ev = toEmployeeView(e);
+            //    employeeViews.Add(ev);
+            //}
+
+            //return employeeViews;
+            return employees;
         }
 
         // GET api/<EmployeeController>/5
@@ -70,10 +117,7 @@ namespace MINI_PROJECT_APIs.Controllers
         [HttpPost]
         public async Task<ActionResult<Employee>> PostEmployee([FromBody]EmployeeRequest employeeRequest)
         {
-            //_context.Employees.Add(employee);
-            //await _context.SaveChangesAsync();
-            
-
+           
             Department department = await departmentService.GetDepartmentById(employeeRequest.DepartmentId);
 
  
@@ -85,7 +129,6 @@ namespace MINI_PROJECT_APIs.Controllers
                 employee.AvatarPath = employeeRequest.AvatarPath;
                 employee.Position = employeeRequest.Position;
                 employee.Title = employeeRequest.Title;
-                employee.AvatarPath = employeeRequest.AvatarPath;
                 employee.Deleted = false;
                 employee.Department = department;
             }
@@ -164,32 +207,23 @@ namespace MINI_PROJECT_APIs.Controllers
             }
 
             await employeeService.Remove(id);
-            //employee.Deleted = true;
-
-            //await _context.SaveChangesAsync();
-
             return employee;
         }
 
-        //private bool EmployeeExists(int id)
-        //{
-        //    return _context.Employees.Any(e => e.Id == id);
-        //}
-
+       
         private EmployeeView toEmployeeView(Employee employee)
         {
             EmployeeView employeeView = new EmployeeView();
 
             employeeView.EmployeeId = employee.Id;
-            employeeView.EmployeeFirstName = employee.FirstName;
-            employeeView.EmployeeLastName = employee.LastName;
+            employeeView.FirstName = employee.FirstName;
+            employeeView.LastName = employee.LastName;
             employeeView.AvatarPath = employee.AvatarPath;
             employeeView.Deleted = employee.Deleted;
             employeeView.Position = employee.Position;
             employeeView.Title = employee.Title;
             employeeView.DepartmentId = employee.Department.Id;
             employeeView.DepartmentName = employee.Department.Name;
-
 
             return employeeView;
         }

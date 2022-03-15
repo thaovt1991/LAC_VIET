@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MINI_PROJECT_APIs.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220307132114_newdata")]
-    partial class newdata
+    [Migration("20220314141845_create")]
+    partial class create
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -35,6 +35,9 @@ namespace MINI_PROJECT_APIs.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("ParentId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

@@ -42,8 +42,6 @@ namespace MINI_PROJECT_APIs.Service
 
         }
 
-
-
         public async Task<Employee> Modify(Employee employee)
         {
             try
@@ -85,5 +83,6 @@ namespace MINI_PROJECT_APIs.Service
         {
             return await context.Employees.Include(e => e.Department).Where(e => !e.Deleted && e.Department.Id == id).ToListAsync();
         }
+
     }
 }

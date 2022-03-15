@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MINI_PROJECT_APIs.Data;
+using MINI_PROJECT_APIs.Domain.Responses.Department;
 using MINI_PROJECT_APIs.Models;
 using MINI_PROJECT_APIs.Service;
 using System;
@@ -28,6 +29,13 @@ namespace MINI_PROJECT_APIs.Controllers
         public async Task<ActionResult<IEnumerable<Department>>> GetDepartments()
         {
             return await this.departmentService.GetDepartments() ;
+        }
+
+        [HttpGet("/api/showTree")]
+        public async Task<ActionResult<IEnumerable<DepartmentRes>>> GetDepartmentsTreeDepartmentRes()
+        {
+
+            return await departmentService.GetDepartmentsTree(0);
         }
 
         // GET api/<DepartmentController>/5

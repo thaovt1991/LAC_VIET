@@ -16,6 +16,8 @@ namespace MINI_PROJECT_APIs.Models
         [MaxLength(200, ErrorMessage = "Tên phòng ban không quá 200 từ")]
         public string Name { get; set; }
 
+        public int ParentId { get; set; }
+
         public bool Deleted { get; set; }
         [JsonIgnore]
         public virtual IList<Employee> Employees { get; set; }
