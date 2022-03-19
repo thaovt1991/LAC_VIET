@@ -22,5 +22,9 @@ namespace MINI_PROJECT_APIs.Models
         [JsonIgnore]
         public virtual IList<Employee> Employees { get; set; }
 
+        public static implicit operator List<object>(Department v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

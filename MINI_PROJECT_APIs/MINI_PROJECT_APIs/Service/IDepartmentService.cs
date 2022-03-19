@@ -11,12 +11,13 @@ namespace MINI_PROJECT_APIs.Service
     {
 
         Task<List<Department>> GetDepartments();
-
-        Task<List<DepartmentRes>> GetDepartmentsTree(int id);
-        Task<Department> Create(DepartmentService department);
+        Task<List<DepartmentRes>> GetDepartmentsTreeById(int id);
         Task<Department> GetDepartmentById(int id);
-        Task<Department> Modify(DepartmentService department);
+        Task<Department> Create(Department department);
+        Task<Department> Modify(Department department);
         Task<Department> Remove(int id);
-        public List<int> getAllIdDepartmnet(List<DepartmentRes> departmentsRes, List<int> listId);
+        Task <List<int>> getAllIdDepartmnet(List<DepartmentRes> departmentsRes, List<int> listId);
+        Task<List<DepartmentRes>> DepartmentTreeBySearch(List<Department> childrenList);
+        Task<List<Department>> SearchDepartmentByKeyword(string keyword);
     }
 }

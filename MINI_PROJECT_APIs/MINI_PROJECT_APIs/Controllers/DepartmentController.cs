@@ -19,7 +19,7 @@ namespace MINI_PROJECT_APIs.Controllers
     {
         private readonly IDepartmentService departmentService;
 
-       public DepartmentController(IDepartmentService departmentService)
+        public DepartmentController(IDepartmentService departmentService)
         {
             this.departmentService = departmentService;
         }
@@ -28,14 +28,28 @@ namespace MINI_PROJECT_APIs.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Department>>> GetDepartments()
         {
-            return await this.departmentService.GetDepartments() ;
+            return await this.departmentService.GetDepartments();
         }
 
         [HttpGet("/api/showTree")]
         public async Task<ActionResult<IEnumerable<DepartmentRes>>> GetDepartmentsTreeDepartmentRes()
         {
+            return await departmentService.GetDepartmentsTreeById(0);
+        }
 
-            return await departmentService.GetDepartmentsTree(0);
+        [HttpPost("/api/showTree/searchDepartmentBy")]
+        [Consumes("application/x-www-form-urlencoded")]
+        public async Task<ActionResult<List<DepartmentRes>>> GetDepartmentsTreeDepartmentResSearchBy([FromForm] string keywords)
+        {
+            List<Department> childrent = await departmentService.SearchDepartmentByKeyword(keywords);
+
+            if (childrent.Count == 0)
+            {
+                return await departmentService.GetDepartmentsTreeById(0);
+            }
+            List<DepartmentRes> departmentsTreeSearch = await departmentService.DepartmentTreeBySearch(childrent);
+
+            return departmentsTreeSearch;
         }
 
         // GET api/<DepartmentController>/5
@@ -52,22 +66,6 @@ namespace MINI_PROJECT_APIs.Controllers
             return department;
         }
 
-        //// POST api/<DepartmentController>
-        //[HttpPost]
-        //public void Post([FromBody] string value)
-        //{
-        //}
-
-        //// PUT api/<DepartmentController>/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
-
-        //// DELETE api/<DepartmentController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
+      
     }
 }

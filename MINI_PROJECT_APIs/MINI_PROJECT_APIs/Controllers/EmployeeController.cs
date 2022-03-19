@@ -4,6 +4,7 @@ using MINI_PROJECT_APIs.Data;
 using MINI_PROJECT_APIs.Domain.Request;
 using MINI_PROJECT_APIs.Domain.Responses.Department;
 using MINI_PROJECT_APIs.Domain.Responses.Employee;
+using MINI_PROJECT_APIs.Domain.Responses.Other;
 using MINI_PROJECT_APIs.Models;
 using MINI_PROJECT_APIs.Service;
 using System;
@@ -31,7 +32,6 @@ namespace MINI_PROJECT_APIs.Controllers
         }
         // GET: api/<EmployeeController>
         [HttpGet]
-
         public async Task<ActionResult<IEnumerable<Employee>>> GetAllEmployees()
         {
             //List<Employee> employees = await employeeService.GetEmployees();
@@ -66,16 +66,13 @@ namespace MINI_PROJECT_APIs.Controllers
         [Route("/api/EmployeeOfTreeByDepartmentId/{id}")]
         public async Task<ActionResult<IEnumerable<Employee>>> GetEmployeesOfTreeByDepartmnetId(int id)
         {
-            
-
-            List<DepartmentRes> departmentRes = await departmentService.GetDepartmentsTree(id);
+            List<DepartmentRes> departmentRes = await departmentService.GetDepartmentsTreeById(id);
             List<Employee> employees = new List<Employee>();
             List<Employee> employeesOfDep = new List<Employee>();
-            List<int> listid = new List<int>();
-            listid.Add(id);
 
-            
-            List<int> listIdDepartmnet = this.departmentService.getAllIdDepartmnet(departmentRes, listid);
+            List<int> listId = new List<int>();
+            listId.Add(id);
+            List<int> listIdDepartmnet = await departmentService.getAllIdDepartmnet(departmentRes, listId);
 
             foreach(int idDe in listIdDepartmnet)
             {
@@ -85,9 +82,6 @@ namespace MINI_PROJECT_APIs.Controllers
                     employees.AddRange(employeesOfDep);
                 }
             }
-
-
-
             //List<EmployeeView> employeeViews = new List<EmployeeView>();
             //foreach (Employee e in employees)
             //{
@@ -111,6 +105,27 @@ namespace MINI_PROJECT_APIs.Controllers
             }
 
             return employee;
+        }
+        [HttpPost("/api/searchBy")]
+        public async Task<ActionResult<IEnumerable<Employee>>> GetAllEmployeesSearchBy([FromBody] SearchObject searchObject)
+   
+        {
+            List<Employee> employeesSearch = new List<Employee>();
+            List<DepartmentRes> departmentRes = await departmentService.GetDepartmentsTreeById(searchObject.DepartmentId);
+            List<Employee> employees = await employeeService.GetEmployeesSearchBy(searchObject.Field,searchObject.Operator,searchObject.Value);
+            List<int> listId = new List<int>();
+            listId.Add(searchObject.DepartmentId);
+            List<int> listIdDepartmnet = await departmentService.getAllIdDepartmnet(departmentRes, listId);
+
+            foreach(int id in listId)
+            {
+                var employeesOfDep = employees.Where(e => e.Department.Id == id).ToList();
+                if (employeesOfDep != null)
+                {
+                    employeesSearch.AddRange(employeesOfDep);
+                }
+            }
+            return employeesSearch;
         }
 
         // POST api/<EmployeeController>
@@ -214,7 +229,6 @@ namespace MINI_PROJECT_APIs.Controllers
         private EmployeeView toEmployeeView(Employee employee)
         {
             EmployeeView employeeView = new EmployeeView();
-
             employeeView.EmployeeId = employee.Id;
             employeeView.FirstName = employee.FirstName;
             employeeView.LastName = employee.LastName;

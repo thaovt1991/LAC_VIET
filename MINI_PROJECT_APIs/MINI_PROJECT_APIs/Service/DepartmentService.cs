@@ -41,11 +41,8 @@ namespace MINI_PROJECT_APIs.Service
 
         public async Task<Department> GetDepartmentById(int id)
         {
-            //return await context.Departments.FindAsync(id);
             return await context.Departments.Include(d => d.Employees).Where(d => !d.Deleted && d.Id == id).FirstOrDefaultAsync();
         }
-
-
 
         public async Task<Department> Modify(Department department)
         {
@@ -79,18 +76,12 @@ namespace MINI_PROJECT_APIs.Service
             }
         }
 
-        public Task<Department> Create(DepartmentService department)
+        public async Task<List<Department>> SearchDepartmentByKeyword(string keyword)
         {
-            throw new NotImplementedException();
+            return await context.Departments.Where(d => d.Name.Contains(keyword)).ToListAsync();
         }
 
-        public Task<Department> Modify(DepartmentService department)
-        {
-            throw new NotImplementedException();
-        }
-
-      
-        public async Task<List<DepartmentRes>> GetDepartmentsTree(int id)
+        public async Task<List<DepartmentRes>> GetDepartmentsTreeById(int id)
         {
             List<Department> departments = await context.Departments.Include(d => d.Employees).Where(d => d.Deleted == false).ToListAsync();
 
@@ -99,10 +90,7 @@ namespace MINI_PROJECT_APIs.Service
             {
                 departmentsRes.Add(toDepartmentRes(d));
             }
-            ///thong tin
-            //
             List<DepartmentRes> hierarchy = new List<DepartmentRes>();
-            //
 
             hierarchy = departmentsRes
                    .Where(c => c.ParentId == id)
@@ -116,6 +104,20 @@ namespace MINI_PROJECT_APIs.Service
                    .ToList();
 
             return hierarchy;
+        }
+
+
+        public async Task<List<int>> getAllIdDepartmnet(List<DepartmentRes> departmentsRes, List<int> listId)
+        {
+            foreach (DepartmentRes d in departmentsRes)
+            {
+                if (d.Children != null)
+                {
+                    listId.Add(d.Id);
+                    listId = await getAllIdDepartmnet(d.Children, listId);
+                }
+            }
+            return listId;
         }
 
         private List<DepartmentRes> GetChildren(List<DepartmentRes> departmentsRes, int parentId)
@@ -132,19 +134,48 @@ namespace MINI_PROJECT_APIs.Service
                     .ToList();
         }
 
-        public  List<int> getAllIdDepartmnet(List<DepartmentRes> departmentsRes, List<int> listId)
-        {
+        public async Task<List<DepartmentRes>> DepartmentTreeBySearch(List<Department> childrenList){
 
-            foreach (DepartmentRes d in departmentsRes)
+            List<Department> departmentsSearch = new List<Department>();
+            List<Department> department = new List<Department>();
+            foreach (Department d in childrenList)
             {
-                if (d.Children != null)
-                {
-                    listId.Add(d.Id);
-                    listId = getAllIdDepartmnet(d.Children, listId);
-                }
-                  
+                department =  await GetListDepartmentByChildren(d,department);
+                //sai ơ chỗ này
+                //departmentsSearch = (List<Department>)departmentsSearch.Union(department);
+
+                departmentsSearch.AddRange(department);
             }
-            return listId;
+
+            List<DepartmentRes> departmentsRes = new List<DepartmentRes>();
+            foreach (Department d in department)
+            {
+                departmentsRes.Add(toDepartmentRes(d));
+            }
+            List<DepartmentRes> hierarchy = new List<DepartmentRes>();
+
+            hierarchy = departmentsRes
+                   .Where(c => c.ParentId == 0)
+                   .Select(c => new DepartmentRes()
+                   {
+                       Id = c.Id,
+                       Name = c.Name,
+                       ParentId = c.ParentId,
+                       Children = GetChildren(departmentsRes, c.Id)
+                   })
+                   .ToList();
+
+            return hierarchy;
+        }
+        private async Task<List<Department>> GetListDepartmentByChildren(Department department, List<Department> listDepartmnet)
+        {
+            listDepartmnet.Add(department);
+            if (department.ParentId != 0)
+            {
+                department = await GetDepartmentById(department.ParentId);
+                listDepartmnet = await GetListDepartmentByChildren(department, listDepartmnet);
+            }
+            return listDepartmnet;
         }
 
         private DepartmentRes toDepartmentRes(Department department)
@@ -154,6 +185,11 @@ namespace MINI_PROJECT_APIs.Service
             departmentRes.Name = department.Name;
             departmentRes.ParentId = department.ParentId;
             return departmentRes;
+        }
+
+        public async Task<List<Department>> searchDepartmentByKeyword(string keyword)
+        {
+           return await context.Departments.Where(d => d.Name.Contains(keyword)).ToListAsync();   
         }
     }
 }
