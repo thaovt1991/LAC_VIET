@@ -2,6 +2,7 @@
 using EmployeeManager.DAL.Models;
 using EmployeeManager.DAL.Repository.IRepository;
 using EmployeeManager.DAL.Service.IService;
+using EmployeeManager.Domain.Responses.Employee;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,6 +60,33 @@ namespace EmployeeManager.DAL.Service.Service
         public async Task<List<Employee>> GetEmployeesSearchBy(string field, string oper, string value)
         {
             return await employeeRepository.GetEmployeesSearchBy(field, oper, value);
+        }
+
+        public List<EmployeeView> ToEmployeeList(List<Employee> employees)
+        {
+            List<EmployeeView> employeeViews = new List<EmployeeView>();
+            foreach (Employee e in employees)
+            {
+                EmployeeView ev = ToEmployee(e);
+                employeeViews.Add(ev);
+            }
+            return employeeViews;
+        }
+
+        public EmployeeView ToEmployee(Employee employee)
+        {
+            EmployeeView employeeView = new EmployeeView();
+            employeeView.EmployeeId = employee.Id;
+            employeeView.FirstName = employee.FirstName;
+            employeeView.LastName = employee.LastName;
+            employeeView.Deleted = employee.Deleted;
+            employeeView.Position = employee.Position;
+            employeeView.Title = employee.Title;
+            employeeView.DepartmentId = employee.Department.Id;
+            employeeView.DepartmentName = employee.Department.Name;
+            //employeeView.AvatarPath = employee.AvatarPath;
+
+            return employeeView;
         }
     }
 }

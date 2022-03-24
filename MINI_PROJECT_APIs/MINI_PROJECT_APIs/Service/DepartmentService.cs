@@ -137,18 +137,22 @@ namespace MINI_PROJECT_APIs.Service
         public async Task<List<DepartmentRes>> DepartmentTreeBySearch(List<Department> childrenList){
 
             List<Department> departmentsSearch = new List<Department>();
-            List<Department> department = new List<Department>();
+            List<Department> departments = new List<Department>();
             foreach (Department d in childrenList)
             {
-                department =  await GetListDepartmentByChildren(d,department);
+                departments =  await GetListDepartmentByChildren(d,departments);
                 //sai ơ chỗ này
-                //departmentsSearch = (List<Department>)departmentsSearch.Union(department);
-
-                departmentsSearch.AddRange(department);
+                foreach (Department dp in departments)
+                {
+                    if (departmentsSearch.IndexOf(dp) == -1)
+                    {
+                        departmentsSearch.Add(dp);
+                    }
+                }
             }
 
             List<DepartmentRes> departmentsRes = new List<DepartmentRes>();
-            foreach (Department d in department)
+            foreach (Department d in departmentsSearch)
             {
                 departmentsRes.Add(toDepartmentRes(d));
             }

@@ -31,44 +31,30 @@ namespace EmployeeManager.API.Controllers
         }
         // GET: api/<EmployeeController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Employee>>> GetAllEmployees()
+        public async Task<ActionResult<IEnumerable<EmployeeView>>> GetAllEmployees()
         {
-            //List<Employee> employees = await employeeService.GetEmployees();
-            //List<EmployeeView> employeeViews = new List<EmployeeView>();
-            //foreach (Employee e in employees)
-            //{
-            //    EmployeeView ev = toEmployeeView(e);
-            //    employeeViews.Add(ev);
-            //}
-
-            //return employeeViews;
-            return await employeeService.GetEmployees();
+            List<Employee> employees = await employeeService.GetEmployees();
+            //employees = employees.OrderByDescending(e => e.Id).ToList();
+            return employeeService.ToEmployeeList(employees);
+            //return await employeeService.GetEmployees();
         }
 
         [HttpGet]
         [Route("/api/EmployeeByDepartmentId/{id}")]
-        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployeesByDepartmnetId(int id)
+        public async Task<ActionResult<IEnumerable<EmployeeView>>> GetEmployeesByDepartmnetId(int id)
         {
-            //List<Employee> employees = await employeeService.GetEmployeesByDerpartmentId(id);
-            //List<EmployeeView> employeeViews = new List<EmployeeView>();
-            //foreach (Employee e in employees)
-            //{
-            //    EmployeeView ev = toEmployeeView(e);
-            //    employeeViews.Add(ev);
-            //}
-
-            //return employeeViews;
-            return await employeeService.GetEmployeesByDerpartmentId(id);
+            List<Employee> employees = await employeeService.GetEmployeesByDerpartmentId(id);
+            return employeeService.ToEmployeeList(employees);
+            //return await employeeService.GetEmployeesByDerpartmentId(id);
         }
 
         [HttpGet]
         [Route("/api/EmployeeOfTreeByDepartmentId/{id}")]
-        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployeesOfTreeByDepartmnetId(int id)
+        public async Task<ActionResult<IEnumerable<EmployeeView>>> GetEmployeesOfTreeByDepartmnetId(int id)
         {
             List<DepartmentRes> departmentRes = await departmentService.GetDepartmentsTreeById(id);
             List<Employee> employees = new List<Employee>();
             List<Employee> employeesOfDep = new List<Employee>();
-
             List<int> listId = new List<int>();
             listId.Add(id);
             List<int> listIdDepartmnet = await departmentService.GetAllIdDepartmnet(departmentRes, listId);
@@ -80,16 +66,11 @@ namespace EmployeeManager.API.Controllers
                 {
                     employees.AddRange(employeesOfDep);
                 }
-            }
-            //List<EmployeeView> employeeViews = new List<EmployeeView>();
-            //foreach (Employee e in employees)
-            //{
-            //    EmployeeView ev = toEmployeeView(e);
-            //    employeeViews.Add(ev);
-            //}
+            };
 
-            //return employeeViews;
-            return employees;
+            employees = employees.OrderBy(e => e.Id).ToList();
+
+            return employeeService.ToEmployeeList(employees) ;
         }
 
         // GET api/<EmployeeController>/5
@@ -106,12 +87,14 @@ namespace EmployeeManager.API.Controllers
             return employee;
         }
         [HttpPost("/api/searchBy")]
-        public async Task<ActionResult<IEnumerable<Employee>>> GetAllEmployeesSearchBy([FromBody] SearchObject searchObject)
+        public async Task<ActionResult<IEnumerable<EmployeeView>>> GetAllEmployeesSearchBy([FromBody] SearchObject searchObject)
 
         {
             List<Employee> employeesSearch = new List<Employee>();
             List<DepartmentRes> departmentRes = await departmentService.GetDepartmentsTreeById(searchObject.DepartmentId);
+
             List<Employee> employees = await employeeService.GetEmployeesSearchBy(searchObject.Field, searchObject.Operator, searchObject.Value);
+
             List<int> listId = new List<int>();
             listId.Add(searchObject.DepartmentId);
             List<int> listIdDepartmnet = await departmentService.GetAllIdDepartmnet(departmentRes, listId);
@@ -123,17 +106,19 @@ namespace EmployeeManager.API.Controllers
                 {
                     employeesSearch.AddRange(employeesOfDep);
                 }
-            }
-            return employeesSearch;
+            };
+
+
+            return employeeService.ToEmployeeList(employeesSearch);
+            //return employeesSearch;
         }
 
         // POST api/<EmployeeController>
         [HttpPost]
-        public async Task<ActionResult<Employee>> PostEmployee([FromBody] EmployeeRequest employeeRequest)
+        public async Task<ActionResult<EmployeeView>> PostEmployee([FromBody] EmployeeRequest employeeRequest)
         {
 
             Department department = await departmentService.GetDepartmentById(employeeRequest.DepartmentId);
-
 
             Employee employee = new Employee();
             if (department != null)
@@ -150,13 +135,13 @@ namespace EmployeeManager.API.Controllers
             {
                 return BadRequest();
             }
-
-
             if (ModelState.IsValid)
             {
                 await employeeService.Create(employee);
 
-                return CreatedAtAction("GetEmployee", new { id = employee.Id }, employee);
+               CreatedAtAction("GetEmployee", new { id = employee.Id }, employee);
+
+                return employeeService.ToEmployee(employee);
             }
             return BadRequest();
         }
@@ -169,8 +154,6 @@ namespace EmployeeManager.API.Controllers
             {
                 return BadRequest();
             }
-
-            //_context.Entry(employee).State = EntityState.Modified;
             Department department = await departmentService.GetDepartmentById(employeeRequest.DepartmentId);
 
             Employee employee = await employeeService.GetEmployeeById(id);
@@ -224,22 +207,6 @@ namespace EmployeeManager.API.Controllers
             return employee;
         }
 
-
-        private EmployeeView toEmployeeView(Employee employee)
-        {
-            EmployeeView employeeView = new EmployeeView();
-            employeeView.EmployeeId = employee.Id;
-            employeeView.FirstName = employee.FirstName;
-            employeeView.LastName = employee.LastName;
-            employeeView.AvatarPath = employee.AvatarPath;
-            employeeView.Deleted = employee.Deleted;
-            employeeView.Position = employee.Position;
-            employeeView.Title = employee.Title;
-            employeeView.DepartmentId = employee.Department.Id;
-            employeeView.DepartmentName = employee.Department.Name;
-
-            return employeeView;
-        }
 
     }
 }

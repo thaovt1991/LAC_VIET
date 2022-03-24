@@ -130,7 +130,16 @@ namespace EmployeeManager.DAL.Repository.Repository
                     operatorSQL = "IS NOT EMPTY";
                     break;
             }
-            string query = "select * from  Employees Where " + field + " " + operatorSQL;
+            string query = "";
+            if (field != "departmentName")
+            {
+                 query = "select * from  Employees Where " + field + " " + operatorSQL;
+            }
+            else
+            {
+                query = "SELECT * FROM Employees as e JOIN (select  id ,name as DepartmentName from Departments  where Name " + operatorSQL +") as d ON e.DepartmentId = d.Id ";
+            }
+
 
             DataTable dt = new DataTable();
             DataSet ds = new DataSet();

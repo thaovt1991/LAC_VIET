@@ -20,5 +20,7 @@ namespace EmployeeManager.DAL.Service.IService
         Task<List<int>> GetAllIdDepartmnet(List<DepartmentRes> departmentsRes, List<int> listId);
         Task<List<DepartmentRes>> DepartmentTreeBySearch(List<Department> childrenList);
         Task<List<Department>> SearchDepartmentByKeyword(string keyword);
+
+        List<DepartmentView> ToDepartmentList(List<Department> departments);
     }
 }

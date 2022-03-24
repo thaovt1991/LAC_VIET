@@ -108,18 +108,22 @@ namespace EmployeeManager.DAL.Service.Service
         {
 
             List<Department> departmentsSearch = new List<Department>();
-            List<Department> department = new List<Department>();
+            List<Department> departments = new List<Department>();
             foreach (Department d in childrenList)
             {
-                department = await GetListDepartmentByChildren(d, department);
-                //sai ơ chỗ này
-                //departmentsSearch = (List<Department>)departmentsSearch.Union(department);
-
-                departmentsSearch.AddRange(department);
-            }
+                departments = await GetListDepartmentByChildren(d, departments);
+               
+                foreach (Department dp in departments)
+                {
+                    if (departmentsSearch.IndexOf(dp) == -1)
+                    {
+                        departmentsSearch.Add(dp);
+                    }
+                }
+            } 
 
             List<DepartmentRes> departmentsRes = new List<DepartmentRes>();
-            foreach (Department d in department)
+            foreach (Department d in departmentsSearch)
             {
                 departmentsRes.Add(toDepartmentRes(d));
             }
@@ -156,6 +160,30 @@ namespace EmployeeManager.DAL.Service.Service
             departmentRes.Name = department.Name;
             departmentRes.ParentId = department.ParentId;
             return departmentRes;
+        }
+
+
+        
+
+        private DepartmentView ToDepartment(Department department)
+        {
+
+            DepartmentView departmentView = new DepartmentView();
+            departmentView.Id = department.Id;
+            departmentView.Name = department.Name;
+            departmentView.ParentId = department.ParentId;
+            return departmentView;
+        }
+
+        public List<DepartmentView> ToDepartmentList(List<Department> departments )
+        {
+            List<DepartmentView> departmnetViews = new List<DepartmentView>();
+            foreach (Department d in departments)
+            {
+                DepartmentView dv = ToDepartment(d);
+                departmnetViews.Add(dv);
+            }
+            return departmnetViews;
         }
     }
 }

@@ -17,5 +17,7 @@ namespace EmployeeManager.DAL.Repository.IRepository
         Task<Employee> Modify(Employee employee);
         Task<Employee> Remove(int id);
         bool EmployeeExists(int id);
+
+
     }
 }

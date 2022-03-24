@@ -1,5 +1,6 @@
 ﻿
 using EmployeeManager.DAL.Models;
+using EmployeeManager.Domain.Responses.Employee;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,5 +19,8 @@ namespace EmployeeManager.DAL.Service.IService
         Task<Employee> Modify(Employee employee);
         Task<Employee> Remove(int id);
         bool EmployeeExists(int id);
+        List<EmployeeView> ToEmployeeList(List<Employee> employees);
+
+        public EmployeeView ToEmployee(Employee employee);
     }
 }

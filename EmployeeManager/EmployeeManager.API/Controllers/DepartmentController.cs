@@ -24,9 +24,11 @@ namespace EmployeeManager.API.Controllers
 
         // GET: api/<DepartmentController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Department>>> GetDepartments()
+        public async Task<ActionResult<IEnumerable<DepartmentView>>> GetDepartments()
         {
-            return await this.departmentService.GetDepartments();
+            List<Department> departments = await departmentService.GetDepartments();
+            return departmentService.ToDepartmentList(departments);
+            //return await departmentService.GetDepartments();
         }
 
         [HttpGet("/api/showTree")]

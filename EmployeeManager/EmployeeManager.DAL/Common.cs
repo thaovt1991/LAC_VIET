@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EmployeeManager.Domain
+namespace EmployeeManager.DAL
 {
     public class Common
     {
