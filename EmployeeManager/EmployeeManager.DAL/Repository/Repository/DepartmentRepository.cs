@@ -32,8 +32,8 @@ namespace EmployeeManager.DAL.Repository.Repository
             try
             {
                 context.Departments.Add(department);
-                var departmentId = await context.SaveChangesAsync();
-                department.Id = departmentId;
+               await context.SaveChangesAsync();
+           
                 return department;
             }
             catch (Exception)

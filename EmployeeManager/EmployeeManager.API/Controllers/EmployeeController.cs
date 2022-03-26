@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using EmployeeManager.Domain.Request;
 using EmployeeManager.Domain.Responses.Department;
 using EmployeeManager.DAL.Service.IService;
-using EmployeeManager.Responses.Other;
+using EmployeeManager.Domain.Responses.Other;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -72,6 +72,7 @@ namespace EmployeeManager.API.Controllers
 
             return employeeService.ToEmployeeList(employees) ;
         }
+     
 
         // GET api/<EmployeeController>/5
         [HttpGet("{id}")]
@@ -139,13 +140,13 @@ namespace EmployeeManager.API.Controllers
             {
                 await employeeService.Create(employee);
 
-               CreatedAtAction("GetEmployee", new { id = employee.Id }, employee);
-
-                return employeeService.ToEmployee(employee);
+                return CreatedAtAction("GetEmployee", new { id = employee.Id }, employeeService.ToEmployee(employee));
             }
             return BadRequest();
         }
 
+
+      
         // PUT api/<EmployeeController>/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutEmployee(int id, [FromBody] EmployeeRequest employeeRequest)
@@ -193,8 +194,40 @@ namespace EmployeeManager.API.Controllers
         }
 
 
-        // DELETE api/<EmployeeController>/5
-        [HttpDelete("{id}")]
+        [HttpPost("/api/pageChange")]
+        public async Task<ActionResult<IEnumerable<EmployeeView>>> PageChange([FromBody] PageChange pageChange)
+        {
+            List<Employee> employees = new List<Employee>();
+
+            if (pageChange.DepartmentId != 0)
+            {
+                List<DepartmentRes> departmentRes = await departmentService.GetDepartmentsTreeById(pageChange.DepartmentId);
+
+                List<Employee> employeesOfDep = new List<Employee>();
+                List<int> listId = new List<int>();
+                listId.Add(pageChange.DepartmentId);
+                List<int> listIdDepartmnet = await departmentService.GetAllIdDepartmnet(departmentRes, listId);
+
+                foreach (int idDe in listIdDepartmnet)
+                {
+                    employeesOfDep = await employeeService.GetEmployeesByDerpartmentId(idDe);
+                    if (employeesOfDep != null)
+                    {
+                        employees.AddRange(employeesOfDep);
+                    }
+                };
+            }else
+            {
+                employees = await employeeService.GetEmployees();
+            }
+            employees = employees.OrderBy(e => e.Id).ToList();
+
+            return employeeService.ToEmployeeList(employees).Skip(pageChange.Skip).Take(pageChange.Take).ToList();
+        }
+
+
+            // DELETE api/<EmployeeController>/5
+            [HttpDelete("{id}")]
         public async Task<ActionResult<Employee>> DeleteEmployee(int id)
         {
             var employee = await employeeService.GetEmployeeById(id);
